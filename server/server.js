@@ -30,7 +30,14 @@ app.get('/', (req, res) => res.send('Collab editor server is running'))
 
 const server = http.createServer(app)
 const wss = new WebSocket.Server({ server })
+const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || 'http://localhost:5176'
 
+server.on('upgrade', (req, socket, head) => {
+  if (req.headers.origin !== ALLOWED_ORIGIN) {
+    socket.destroy()
+    return
+  }
+})
 wss.on('connection', (conn, req) => {
   setupWSConnection(conn, req)
 })
